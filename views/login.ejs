@@ -1,0 +1,35 @@
+<% include header.ejs %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 style="text-align: center">Welcome to ChatsApp</h1>
+            <p class="lead" style="text-align: center; color: darkred;"> <%=locals.message%></p>
+        </div>
+    </div>
+    <% if (!locals.hide) { %> 
+    <div class="card" style="width: 60%; margin: 0 auto; margin-top: 20px; ">
+        <div class="card-header">Login</div>
+        <div class="card-block">
+            <form method="POST" action="/" autocomplete="off" id="loginForm">
+                <input type="hidden" name="userId" value="">
+                <div class="form-group">
+                    <label class="form-control-label" for="username">Username:</label>
+                    <input class="form-control" id="username" type="text" name="username"
+                     autocomplete="off" value="" required style="text-transform: capitalize"></div>
+                <div class="form-group">
+                    <label class="form-control-label" for="password">Password:</label>
+                    <input class="form-control" id="password" type="password" name="password"
+                     autocomplete="off" required>
+                </div>
+                <p> Not registered? <a href="/register"> Register Here </a> </p>
+                <p> <a href="/recover">Forgot your password?</a></p>
+                <button class="m-1 btn btn-primary" type="submit">Log In</button><a class="m-1 btn btn-secondary"
+                    href="/" role="button">Reset</a>
+            </form>
+        </div>
+    </div>
+    <% } %>
+</div>
+<% include footer.ejs %>
+</body>
+</html>

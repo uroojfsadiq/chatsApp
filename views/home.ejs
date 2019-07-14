@@ -1,0 +1,161 @@
+<% include header.ejs %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="display-6" style="text-align: center" style="text-transform: capitalize">Welcome to the ChatsApp
+            </h1>
+            <p class="lead" style="text-align: center; color: darkred;"> <%=locals.message%></p>
+            <!-- <p class="lead" style="text-align: center;">To go online and connect with all online users, join
+                <a a href="/common" style="text-align: center">common room</a></p> -->
+
+        </div>
+    </div>
+</div>
+<div class="row mx-1 my-3 justify-content-around">
+    <div class="col-md-2 col-3">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <th> User List </th>
+                <!-- <th> Status </th> -->
+            </thead>
+            <tbody>
+                <% for (let i=0; i < users.length; i++) { %>
+                <tr class="user-list">
+                    <td class="name" data-id="<%= users[i].username %>"><button type="button"
+                            class="btn btn-default btn-circle status"></button>
+                        <%= users[i].username %></td>
+                    <!-- <td class="status"> offline </td> -->
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-8 col-8">
+        <div id="chat-broadcast">
+            <div id="chat-window">
+                <div id="chat-output"></div>
+                <div id="typing"></div>
+                <div id="notification"></div>
+            </div>
+
+            <input id="chat-message" type="text" placeholder="Message" />
+            <button id="chat-send">Send</button>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<% include footer.ejs %>
+<script src="/socket.io/socket.io.js"> </script>
+<script>
+    //Make Connection between Client and Server
+    const socket = io.connect('http://localhost:3000');
+
+    // Get elements from DOM
+    const output = document.getElementById('chat-output');
+    const message = document.getElementById('chat-message');
+    const send = document.getElementById('chat-send');
+    const sender = '<%=locals.username%>';
+    const typing = document.getElementById('typing');
+    const noti = document.getElementById('notification');
+    const name = document.getElementsByClassName('name');
+    const userInfo = {
+        sender: sender,
+    }
+
+    // Make oneself online
+    function youAreOnline() {
+        for (let i = 0; i < name.length; i++) {
+            if (name[i].dataset.id.trim() == sender) {
+                name[i].querySelector('.status').classList.add('online')
+            }
+        }
+    }
+
+    youAreOnline();
+
+    //Add Event Listeners and Emit Events
+    send.addEventListener('click', function () {
+        socket.emit('chat', {
+            message: message.value,
+            sender: sender
+        });
+        message.value = '';
+    });
+
+    // Enter key sends a message too
+    message.addEventListener('keyup', function (event) {
+        if (event.keyCode === 13) {
+            socket.emit('chat', {
+                message: message.value,
+                sender: sender
+            });
+            message.value = '';
+
+        }
+    });
+
+    // Broadcast Typing Message
+    message.addEventListener('keypress', () => {
+        socket.emit('typing', {
+            sender: sender
+        });
+    })
+
+    // Emit Online Notification
+    socket.on('connect', () => {
+        userInfo.socketID = socket.id;
+        socket.emit('newUser', userInfo)
+    })
+
+    // Disconnect user
+    socket.on('disconnect', () => {
+    });
+
+
+    // Listen to Events
+    socket.on('onlineUsers', (data) => {
+        for (let j = 0; j < data.length; j++) {
+            for (let i = 0; i < name.length; i++) {
+                if (name[i].dataset.id.trim() == data[j].sender) {
+                    name[i].querySelector('.status').classList.add('online')
+                }
+            }
+        }
+    })
+
+    socket.on('chat', (data) => {
+        typing.innerHTML = "";
+        output.innerHTML += `<p> <strong> ${data.sender} </strong>
+      ${data.message} </p>`;
+    })
+
+    socket.on('typing', (data) => {
+        typing.innerHTML = `<p> <em> ${data.sender} is typing a message..
+       </em> </p>`
+    })
+
+    socket.on('newUser', (data) => {
+        output.innerHTML += `<p> ${data.sender} is online`;
+        for (let i = 0; i < name.length; i++) {
+            if (name[i].dataset.id.trim() == data.sender) {
+                name[i].querySelector('.status').classList.add('online')
+            }
+        }
+    })
+
+    socket.on('userLeft', (data) => {
+        if (data !== 'transport close') {
+            output.innerHTML += `<p> ${data} is offline`
+            for (let i = 0; i < name.length; i++) {
+                if (name[i].dataset.id.trim() == data) {
+                    name[i].querySelector('.status').classList.remove('online')
+                }
+            }
+        }
+    })
+</script>
+</body>
+
+</html>
