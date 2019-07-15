@@ -23,7 +23,7 @@
     <!-- /#sidebar-wrapper -->
     <!-- Page Content -->
     <div id="page-content-wrapper">
-        <button class="btn btn-secondary mb-3 mt-2 mx-2 btn-sm" id="menu-toggle"> Toggle Sidebar</button>
+        <button class="btn btn-secondary mb-3 mt-2 mx-2 btn-sm" id="menu-toggle">Userlist</button>
         <div class="container-fluid collapse" id="broadcast">
             <div class="card card-body">
                 <div class="chat-window">
@@ -38,15 +38,17 @@
         </div>
 
         <% for (let i=0; i < users.length; i++) { %>
+
         <div class="container-fluid collapse private" id="<%=users[i].username%>">
             <div class="card card-body">
+
                 <div class="chat-window">
                     <div class="chat-output">
                     </div>
                 </div>
-                <input class="chat-message messageBox" type="text" placeholder="Message"
+                <input class="chat-message messageBox" type="text"
+                    placeholder="Message ~<%=users[i].username%>~ and press Enter"
                     data-username="<%=users[i].username%>" />
-                <button class="chat-send">Send</button>
             </div>
         </div>
         <% } %>
