@@ -44,7 +44,7 @@ app.use(session({
   secret: 'topSecret',
   resave: true,
   saveUninitialized: true,
-  store: new MongoStore({mongooseConnection: mongoose.connection}),
+  store: new MongoStore({ mongooseConnection: mongoose.connection }),
 }));
 
 // view engine setup
@@ -53,7 +53,7 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -70,18 +70,15 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-let userInfo = [];
-console.log(userInfo);
-
+let onlineUsers = [];
 // Socket IO
 io.on('connection', (socket) => {
-  io.sockets.emit('onlineUsers', userInfo);
-  
+  io.sockets.emit('onlineUsers', onlineUsers);
+
   socket.on('newUser', (data) => {
     socket.broadcast.emit('newUser', data);
-
-    console.log(`${data.sender}  is online`);
-    userInfo.push(data);
+    console.log(`${data.sender} is online`);
+    onlineUsers.push(data);
   });
 
   socket.on('chat', (data) => {
@@ -92,46 +89,34 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('typing', data);
   });
 
-  // socket.on('pvtMsg', (data) => {
-  //   socket.join(`${data.sendTo}`);
-  //   if (data.sendTo) {
-  //     console.log(data);
-  //     io.to(`${data.sendTo}`).emit(`${data.message}`);
-  //   }
-    // else {
-    //   io.to(`${data.sender}`).emit(`User is offline. Try later.`);
-    // }
-  // });
-
-  socket.on('pvtMsg', data => {
+  socket.on('pvtMsg', (data) => {
     console.log(data);
     io.sockets.to(`${data.sendTo}`).emit('pvtMsg', data);
+    // io.sockets.to(`${data.sender}`).emit('pvtMsg', data);
   });
 
-  
-
   socket.on('disconnect', (data) => {
-    userInfo.forEach(function(user) {
+    onlineUsers.forEach(function (user) {
       if (user.socketID == socket.id) {
         data = user.sender;
       }
     });
+
     socket.broadcast.emit('userLeft', data);
     console.log(`${data} is offline`);
-    userInfo = userInfo.filter((user) => {
+    onlineUsers = onlineUsers.filter((user) => {
       return user.socketID != socket.id;
     });
-    console.log(userInfo);
   });
 });
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
