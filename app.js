@@ -76,6 +76,7 @@ console.log(userInfo);
 // Socket IO
 io.on('connection', (socket) => {
   io.sockets.emit('onlineUsers', userInfo);
+  
   socket.on('newUser', (data) => {
     socket.broadcast.emit('newUser', data);
 

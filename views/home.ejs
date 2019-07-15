@@ -2,9 +2,11 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="display-6" style="text-align: center" style="text-transform: capitalize">Welcome to the ChatsApp
-            </h1>
-            <p class="lead" style="text-align: center; color: darkred;"> <%=locals.message%></p>
+            <h2 style="text-align: center;text-transform: capitalize">Welcome to the ChatsApp,
+                <%=locals.username%></h2>
+            <p class="lead" style="text-align: center; color:navy;">
+                ~ This is a common room where you can connect with all online users.<br>
+                Click on any online user to start a private chat with them. ~</p>
             <!-- <p class="lead" style="text-align: center;">To go online and connect with all online users, join
                 <a a href="/common" style="text-align: center">common room</a></p> -->
 
@@ -21,9 +23,9 @@
             <tbody>
                 <% for (let i=0; i < users.length; i++) { %>
                 <tr class="user-list">
-                    <td class="name" data-id="<%= users[i].username %>"><button type="button"
+                    <td class="name" data-id="<%= users[i].username %>" data-socket=""><button type="button"
                             class="btn btn-default btn-circle status"></button>
-                        <%= users[i].username %></td>
+                        <a href="#"><%= users[i].username %></a></td>
                     <!-- <td class="status"> offline </td> -->
                 </tr>
                 <% } %>
@@ -68,12 +70,12 @@
     function youAreOnline() {
         for (let i = 0; i < name.length; i++) {
             if (name[i].dataset.id.trim() == sender) {
-                name[i].querySelector('.status').classList.add('online')
+                name[i].querySelector('.status').classList.add('online');
+                name[i].dataset.socket = userInfo.socketID;
+
             }
         }
     }
-
-    youAreOnline();
 
     //Add Event Listeners and Emit Events
     send.addEventListener('click', function () {
@@ -106,7 +108,8 @@
     // Emit Online Notification
     socket.on('connect', () => {
         userInfo.socketID = socket.id;
-        socket.emit('newUser', userInfo)
+        socket.emit('newUser', userInfo);
+        youAreOnline();
     })
 
     // Disconnect user
@@ -119,7 +122,8 @@
         for (let j = 0; j < data.length; j++) {
             for (let i = 0; i < name.length; i++) {
                 if (name[i].dataset.id.trim() == data[j].sender) {
-                    name[i].querySelector('.status').classList.add('online')
+                    name[i].querySelector('.status').classList.add('online');
+                    name[i].dataset.socket = data[j].socketID;
                 }
             }
         }
@@ -140,7 +144,8 @@
         output.innerHTML += `<p> ${data.sender} is online`;
         for (let i = 0; i < name.length; i++) {
             if (name[i].dataset.id.trim() == data.sender) {
-                name[i].querySelector('.status').classList.add('online')
+                name[i].querySelector('.status').classList.add('online');
+                name[i].dataset.socket = data.socketID;
             }
         }
     })
