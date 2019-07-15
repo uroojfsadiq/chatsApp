@@ -1,5 +1,5 @@
 <% include header.ejs %>
-<div class="container">
+<!-- <div class="container">
     <div class="row">
         <div class="col-md-12">
             <h2 style="text-align: center;text-transform: capitalize">Welcome to the ChatsApp,
@@ -10,14 +10,24 @@
             <!-- <p class="lead" style="text-align: center;">To go online and connect with all online users, join
                 <a a href="/common" style="text-align: center">common room</a></p> -->
 
-        </div>
+<!-- </div>
     </div>
+</div> -->
+<div class="row mx-3 my-2 mb-5 justify-content-around">
+    <button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#chat-broadcast"
+        aria-expanded="false" aria-controls="chat-broadcast">
+        Broadcast
+    </button>
+    <button class="btn btn-outline-info" type="button" data-toggle="collapse" data-target="#chat-broadcast2"
+        aria-expanded="false" aria-controls="chat-broadcast2">
+        Broadcast
+    </button>
 </div>
-<div class="row mx-1 my-3 justify-content-around">
+<div class="row mx-3 justify-content-around">
     <div class="col-md-2 col-3">
         <table class="table table-bordered table-striped">
             <thead>
-                <th> User List </th>
+                <th class="text-center"> USER MEMBERS </th>
                 <!-- <th> Status </th> -->
             </thead>
             <tbody>
@@ -33,15 +43,29 @@
         </table>
     </div>
     <div class="col-md-8 col-8">
-        <div id="chat-broadcast">
-            <div id="chat-window">
-                <div id="chat-output"></div>
-                <div id="typing"></div>
-                <div id="notification"></div>
-            </div>
+        <div id="chat-broadcast" class="collapse">
+            <div class="card card-body">
+                <div id="chat-window">
+                    <div id="chat-output"></div>
+                    <div id="typing"></div>
+                    <div id="notification"></div>
+                </div>
 
-            <input id="chat-message" type="text" placeholder="Message" />
-            <button id="chat-send">Send</button>
+                <input id="chat-message" type="text" placeholder="Message" />
+                <button id="chat-send">Send</button>
+            </div>
+        </div>
+        <div id="chat-broadcast2" class="collapse">
+            <div class="card card-body">
+                <div id="chat-window2">
+                    <div id="chat-output2"></div>
+                    <div id="typing2"></div>
+                    <div id="notification2"></div>
+                </div>
+
+                <input id="chat-message2" type="text" placeholder="Message" />
+                <button id="chat-send2">Send2</button>
+            </div>
         </div>
     </div>
 </div>
@@ -49,6 +73,13 @@
 
 
 <% include footer.ejs %>
+<script>
+    $('.collapse').on('show.bs.collapse', function () {
+        $('.collapse').each(function () {
+            $(this).collapse('hide');
+        });
+    });
+</script>
 <script src="/socket.io/socket.io.js"> </script>
 <script>
     //Make Connection between Client and Server
