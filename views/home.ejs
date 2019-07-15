@@ -12,9 +12,9 @@
                 class="list-group-item list-group-item-action bg-light">
                 Broadcast Room </a>
             <% for (let i=0; i < users.length; i++) { %>
-            <a href="#private-<%=users[i].username%>" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="private"
-                class="list-group-item list-group-item-action bg-light userlist" data-username="<%= users[i].username %>"
-                data-socketID="">
+            <a href="#<%=users[i].username%>" data-toggle="collapse" role="button" aria-expanded="false"
+                aria-controls="private" class="list-group-item list-group-item-action bg-light userlist"
+                data-username="<%= users[i].username %>" data-socketID="">
                 <button type="button" class="btn btn-default btn-circle status"></button>
                 <%= users[i].username %> </a>
             <% } %>
@@ -37,8 +37,9 @@
             </div>
         </div>
         <% for (let i=0; i < users.length; i++) { %>
-        <div class="container-fluid collapse private" id="private-<%=users[i].username%>">
+        <div class="container-fluid collapse private" id="<%=users[i].username%>">
             <div class="card card-body">
+                <!-- data-username="<%= users[i].username %>" data-socketID=""> -->
                 <div class="chat-window">
                     <div class="chat-output">
                         <%=users[i].username%>
@@ -46,8 +47,9 @@
                     <div class="typing"></div>
                     <div class="notification"></div>
                 </div>
-        
-                <input class="chat-message" type="text" placeholder="Message" />
+
+                <input class="chat-message messageBox" type="text" placeholder="Message" data-username="<%=users[i].username%>"
+                />
                 <button class="chat-send">Send</button>
             </div>
         </div>
@@ -64,10 +66,10 @@
 
 <script>
     $('.collapse').on('show.bs.collapse', function () {
-            $('.collapse').each(function () {
-                $(this).collapse('hide');
-            });
+        $('.collapse').each(function () {
+            $(this).collapse('hide');
         });
+    });
     $("#menu-toggle").click(function (e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
@@ -82,23 +84,34 @@
     // Get elements from DOM
     const sender = '<%=locals.username%>';
     const outputB = $('#broadcast').find('.chat-output');
+    const outputP = $('.private').find('.chat-output');
+
     const messageB = $('#broadcast').find('.chat-message');
+    const messageP = $('.private').find('.chat-message');
+
     const sendB = $('#broadcast').find('.chat-send');
+    const sendP = $('.private').find('.chat-send');
+
     const typingB = $('#broadcast').find('.typing');
     const notiB = $('#broadcast').find('.notification');
     const user = $('.userlist');
+    const messageBox = $('.messageBox');
+
     const userInfo = {
         sender: sender,
     }
-    
-
+    // console.log($('.private')[1].id);
     // Make oneself online
     function youAreOnline() {
         for (let i = 0; i < user.length; i++) {
             if (user[i].dataset.username.trim() == sender) {
                 user[i].querySelector('.status').classList.add('online');
                 user[i].dataset.socketID = userInfo.socketID;
-
+            }
+            for (let i = 0; i < messageBox.length; i++) {
+                if (messageBox[i].dataset.username.trim() == sender) {
+                    messageBox[i].setAttribute('id', userInfo.socketID)
+                }
             }
         }
     }
@@ -120,6 +133,19 @@
                 sender: sender
             });
             messageB.val('');
+        }
+    });
+
+
+    messageP.bind('keyup', (event) => {
+        if (event.keyCode === 13) {
+            
+            socket.emit('pvtMsg', {
+                message: $(event.target).val(),
+                sender: userInfo.socketID,
+                sendTo: $(event.target).attr('id'),
+            });
+            messageP.val('');
         }
     });
 
@@ -151,13 +177,29 @@
                     user[i].dataset.socketID = data[j].socketID;
                 }
             }
+            for (let i = 0; i < messageBox.length; i++) {
+                if (messageBox[i].dataset.username.trim() == data[j].sender) {
+                    messageBox[i].setAttribute('id', data[j].socketID)
+                }
+            }
         }
     })
 
     socket.on('chat', (data) => {
         typingB.html('');
-      outputB.append(`<p> <strong> ${data.sender} </strong>
+        outputB.append(`<p> <strong> ${data.sender} </strong>
       ${data.message} </p>`);
+    })
+    outputP[1].innerHTML = 'hello jee';
+
+    socket.on('pvtMsg', (data) => {
+        let from;
+       for(i=0; i<user.length; i++) {
+           if(user[i].dataset.socket == data.sender) {
+               from = '#' + user[i].dataset.username.trim();
+           }
+       }
+       $(from).find('.chat-output').append(`<p> <strong> ${from} </strong> ${data.message} </p>`);
     })
 
     socket.on('typing', (data) => {
@@ -173,6 +215,11 @@
                 user[i].dataset.socket = data.socketID;
             }
         }
+        for (let i = 0; i < messageBox.length; i++) {
+            if (messageBox[i].dataset.username.trim() == data.sender) {
+                messageBox[i].setAttribute('id', data.socketID)
+            }
+        }
     })
 
     socket.on('userLeft', (data) => {
@@ -185,6 +232,10 @@
             }
         }
     })
+
+    // PRIVATE MESSAGES
+
+
 </script>
 </body>
 

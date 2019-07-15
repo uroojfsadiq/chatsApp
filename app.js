@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
   socket.on('newUser', (data) => {
     socket.broadcast.emit('newUser', data);
 
-    console.log(`${data.sender} is online`);
+    console.log(`${data.sender}  is online`);
     userInfo.push(data);
   });
 
@@ -91,6 +91,24 @@ io.on('connection', (socket) => {
   socket.on('typing', (data) => {
     socket.broadcast.emit('typing', data);
   });
+
+  // socket.on('pvtMsg', (data) => {
+  //   socket.join(`${data.sendTo}`);
+  //   if (data.sendTo) {
+  //     console.log(data);
+  //     io.to(`${data.sendTo}`).emit(`${data.message}`);
+  //   }
+    // else {
+    //   io.to(`${data.sender}`).emit(`User is offline. Try later.`);
+    // }
+  // });
+
+  socket.on('pvtMsg', data => {
+    console.log(data);
+    io.sockets.to(`${data.sendTo}`).emit('pvtMsg', data);
+  });
+
+  
 
   socket.on('disconnect', (data) => {
     userInfo.forEach(function(user) {
