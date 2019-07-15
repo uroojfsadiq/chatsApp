@@ -1,136 +1,130 @@
 <% include header.ejs %>
-<!-- <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h2 style="text-align: center;text-transform: capitalize">Welcome to the ChatsApp,
-                <%=locals.username%></h2>
-            <p class="lead" style="text-align: center; color:navy;">
-                ~ This is a common room where you can connect with all online users.<br>
-                Click on any online user to start a private chat with them. ~</p>
-            <!-- <p class="lead" style="text-align: center;">To go online and connect with all online users, join
-                <a a href="/common" style="text-align: center">common room</a></p> -->
 
-<!-- </div>
-    </div>
-</div> -->
-<div class="row mx-3 my-2 mb-5 justify-content-around">
-    <button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#chat-broadcast"
-        aria-expanded="false" aria-controls="chat-broadcast">
-        Broadcast
-    </button>
-    <button class="btn btn-outline-info" type="button" data-toggle="collapse" data-target="#chat-broadcast2"
-        aria-expanded="false" aria-controls="chat-broadcast2">
-        Broadcast
-    </button>
+<div class="row my-2 mx-5">
+
 </div>
-<div class="row mx-3 justify-content-around">
-    <div class="col-md-2 col-3">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <th class="text-center"> USER MEMBERS </th>
-                <!-- <th> Status </th> -->
-            </thead>
-            <tbody>
-                <% for (let i=0; i < users.length; i++) { %>
-                <tr class="user-list">
-                    <td class="name" data-id="<%= users[i].username %>" data-socket=""><button type="button"
-                            class="btn btn-default btn-circle status"></button>
-                        <a href="#"><%= users[i].username %></a></td>
-                    <!-- <td class="status"> offline </td> -->
-                </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-    <div class="col-md-8 col-8">
-        <div id="chat-broadcast" class="collapse">
-            <div class="card card-body">
-                <div id="chat-window">
-                    <div id="chat-output"></div>
-                    <div id="typing"></div>
-                    <div id="notification"></div>
-                </div>
-
-                <input id="chat-message" type="text" placeholder="Message" />
-                <button id="chat-send">Send</button>
-            </div>
-        </div>
-        <div id="chat-broadcast2" class="collapse">
-            <div class="card card-body">
-                <div id="chat-window2">
-                    <div id="chat-output2"></div>
-                    <div id="typing2"></div>
-                    <div id="notification2"></div>
-                </div>
-
-                <input id="chat-message2" type="text" placeholder="Message" />
-                <button id="chat-send2">Send2</button>
-            </div>
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading"> ROOMS & USERS </div>
+        <div class="list-group list-group-flush">
+            <a href="#broadcast" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="broadcast"
+                class="list-group-item list-group-item-action bg-light">
+                Broadcast Room </a>
+            <% for (let i=0; i < users.length; i++) { %>
+            <a href="#private-<%=users[i].username%>" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="private"
+                class="list-group-item list-group-item-action bg-light userlist" data-username="<%= users[i].username %>"
+                data-socketID="">
+                <button type="button" class="btn btn-default btn-circle status"></button>
+                <%= users[i].username %> </a>
+            <% } %>
         </div>
     </div>
-</div>
-</div>
+    <!-- /#sidebar-wrapper -->
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <button class="btn btn-secondary mb-3 mt-2 mx-2 btn-sm" id="menu-toggle"> Toggle Sidebar</button>
+        <div class="container-fluid collapse" id="broadcast">
+            <div class="card card-body">
+                <div class="chat-window">
+                    <div class="chat-output"></div>
+                    <div class="typing"></div>
+                    <div class="notification"></div>
+                </div>
 
+                <input class="chat-message" type="text" placeholder="Message" />
+                <button class="chat-send">Send</button>
+            </div>
+        </div>
+        <% for (let i=0; i < users.length; i++) { %>
+        <div class="container-fluid collapse private" id="private-<%=users[i].username%>">
+            <div class="card card-body">
+                <div class="chat-window">
+                    <div class="chat-output">
+                        <%=users[i].username%>
+                    </div>
+                    <div class="typing"></div>
+                    <div class="notification"></div>
+                </div>
+        
+                <input class="chat-message" type="text" placeholder="Message" />
+                <button class="chat-send">Send</button>
+            </div>
+        </div>
+        <% } %>
+    </div>
 
+    <!-- /#page-content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
 <% include footer.ejs %>
+
+<script src="/socket.io/socket.io.js"> </script>
+
 <script>
     $('.collapse').on('show.bs.collapse', function () {
-        $('.collapse').each(function () {
-            $(this).collapse('hide');
+            $('.collapse').each(function () {
+                $(this).collapse('hide');
+            });
         });
+    $("#menu-toggle").click(function (e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
     });
 </script>
-<script src="/socket.io/socket.io.js"> </script>
 <script>
     //Make Connection between Client and Server
     const socket = io.connect('http://localhost:3000');
 
+    // BROADCAST ROOM ONLY
+
     // Get elements from DOM
-    const output = document.getElementById('chat-output');
-    const message = document.getElementById('chat-message');
-    const send = document.getElementById('chat-send');
     const sender = '<%=locals.username%>';
-    const typing = document.getElementById('typing');
-    const noti = document.getElementById('notification');
-    const name = document.getElementsByClassName('name');
+    const outputB = $('#broadcast').find('.chat-output');
+    const messageB = $('#broadcast').find('.chat-message');
+    const sendB = $('#broadcast').find('.chat-send');
+    const typingB = $('#broadcast').find('.typing');
+    const notiB = $('#broadcast').find('.notification');
+    const user = $('.userlist');
     const userInfo = {
         sender: sender,
     }
+    
 
     // Make oneself online
     function youAreOnline() {
-        for (let i = 0; i < name.length; i++) {
-            if (name[i].dataset.id.trim() == sender) {
-                name[i].querySelector('.status').classList.add('online');
-                name[i].dataset.socket = userInfo.socketID;
+        for (let i = 0; i < user.length; i++) {
+            if (user[i].dataset.username.trim() == sender) {
+                user[i].querySelector('.status').classList.add('online');
+                user[i].dataset.socketID = userInfo.socketID;
 
             }
         }
     }
 
     //Add Event Listeners and Emit Events
-    send.addEventListener('click', function () {
+    sendB.bind('click', () => {
         socket.emit('chat', {
-            message: message.value,
+            message: messageB.val(),
             sender: sender
         });
-        message.value = '';
+        messageB.val('');
     });
 
     // Enter key sends a message too
-    message.addEventListener('keyup', function (event) {
+    messageB.bind('keyup', (event) => {
         if (event.keyCode === 13) {
             socket.emit('chat', {
-                message: message.value,
+                message: messageB.val(),
                 sender: sender
             });
-            message.value = '';
-
+            messageB.val('');
         }
     });
 
-    // Broadcast Typing Message
-    message.addEventListener('keypress', () => {
+    // // Broadcast Typing Message
+    messageB.bind('keypress', () => {
         socket.emit('typing', {
             sender: sender
         });
@@ -148,45 +142,45 @@
     });
 
 
-    // Listen to Events
+    // // Listen to Events
     socket.on('onlineUsers', (data) => {
         for (let j = 0; j < data.length; j++) {
-            for (let i = 0; i < name.length; i++) {
-                if (name[i].dataset.id.trim() == data[j].sender) {
-                    name[i].querySelector('.status').classList.add('online');
-                    name[i].dataset.socket = data[j].socketID;
+            for (let i = 0; i < user.length; i++) {
+                if (user[i].dataset.username.trim() == data[j].sender) {
+                    user[i].querySelector('.status').classList.add('online');
+                    user[i].dataset.socketID = data[j].socketID;
                 }
             }
         }
     })
 
     socket.on('chat', (data) => {
-        typing.innerHTML = "";
-        output.innerHTML += `<p> <strong> ${data.sender} </strong>
-      ${data.message} </p>`;
+        typingB.html('');
+      outputB.append(`<p> <strong> ${data.sender} </strong>
+      ${data.message} </p>`);
     })
 
     socket.on('typing', (data) => {
-        typing.innerHTML = `<p> <em> ${data.sender} is typing a message..
-       </em> </p>`
+        typingB.html(`<p> <em> ${data.sender} is typing a message..
+       </em> </p>`);
     })
 
     socket.on('newUser', (data) => {
-        output.innerHTML += `<p> ${data.sender} is online`;
-        for (let i = 0; i < name.length; i++) {
-            if (name[i].dataset.id.trim() == data.sender) {
-                name[i].querySelector('.status').classList.add('online');
-                name[i].dataset.socket = data.socketID;
+        outputB.append(`<p> ${data.sender} is online`);
+        for (let i = 0; i < user.length; i++) {
+            if (user[i].dataset.username.trim() == data.sender) {
+                user[i].querySelector('.status').classList.add('online');
+                user[i].dataset.socket = data.socketID;
             }
         }
     })
 
     socket.on('userLeft', (data) => {
         if (data !== 'transport close') {
-            output.innerHTML += `<p> ${data} is offline`
-            for (let i = 0; i < name.length; i++) {
-                if (name[i].dataset.id.trim() == data) {
-                    name[i].querySelector('.status').classList.remove('online')
+            outputB.append(`<p> ${data} is offline`);
+            for (let i = 0; i < user.length; i++) {
+                if (user[i].dataset.username.trim() == data) {
+                    user[i].querySelector('.status').classList.remove('online')
                 }
             }
         }
