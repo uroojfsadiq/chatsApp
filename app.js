@@ -22,7 +22,7 @@ const User = require('./models/user');
 const app = express();
 
 // Socket IO
-const server = app.listen(3000);
+const server = app.listen(443);
 const socket = require('socket.io');
 const io = socket.listen(server);
 
