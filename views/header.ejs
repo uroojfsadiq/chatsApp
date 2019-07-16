@@ -19,10 +19,6 @@
             padding-top: 4rem;
             font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
         }
-
-        .online {
-            background: rgb(106, 232, 9)
-        }
     </style>
 </head>
 
@@ -31,36 +27,26 @@
             class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
             data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false"
             aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-        <div class="container"> <a class="navbar-brand" href="#">ChatsApp</a>
+        <div class="container"> <a class="navbar-brand" href="#">Code Girls</a>
             <div class="collapse navbar-collapse" id="navbarsExampleDefault">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item <%= locals.home %>">
-                        <a class="nav-link" href="/home">Home </a>
-                    </li>
                     <li class="nav-item <%= locals.login %>">
-                        <a class="nav-link" href="/"> Login </a>
+                        <a class="nav-link" href="/login"> Login </a>
+                    </li>
+                    <li class="nav-item <%= locals.app %>">
+                        <a class="nav-link" href="/"> ChatsApp </a>
                     </li>
                     <li class="nav-item <%= locals.logout %>">
                         <a class="nav-link" href="/logout"> Logout </a>
                     </li>
-
-                    <!-- <li class="nav-item <%= locals.common%> ">
-                        <a class="nav-link" href="/common">Common Room</a>
-                    </li> -->
-                    <!-- <li class="nav-item <%= locals.private%> ">
-                        <a class="nav-link" href="/private">Private Chat</a>
-                    </li> -->
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item <%= locals.register %>">
                         <a class="nav-link" href="/register"> Register </a>
                     </li>
-
                     <li class="nav-item <%= locals.recover %>">
                         <a class="nav-link" href="/recover"> Recover </a>
                     </li>
-
-
                 </ul>
             </div>
         </div>

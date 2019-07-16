@@ -10,6 +10,9 @@
   margin-right: 15px;
 }
 
+.online {
+  background: rgb(106, 232, 9)
+}
 
 /* #broadcast{
   max-width: 800px;

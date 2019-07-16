@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-md-12">
             <h1 style="text-align: center"> Recover Your Password </h1>
-            <p class="lead" style="text-align: center; color: darkred;"> <%=locals.message%></p>
+            <p class="lead" style="text-align: center; color: darkred;"> <%=locals.message%> </p>
         </div>
     </div>
     <% if (!locals.hide) { %> 
@@ -14,7 +14,7 @@
               <div class="form-group"><label class="form-control-label" for="username">Username:</label>
                   <input class="form-control" id="username" required style="text-transform: capitalize"
                    type="text" name="username"
-                      autocomplete="off" value="<%= locals.user %>" <%=locals.disabled%>></div>
+                      autocomplete="off" value="<%= locals.user %>" <%=locals.disabled%> </div>
               <% if(locals.forgot){ %>
               <div class="form-group"><label class="form-control-label" for="username">Secret Question:</label>
                 <input class="form-control" id="secretQues" type="text" name="secretQues"
