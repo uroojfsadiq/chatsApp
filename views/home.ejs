@@ -49,6 +49,7 @@
                 <input class="chat-message messageBox" type="text"
                     placeholder="Message ~<%=users[i].username%>~ and press Enter"
                     data-username="<%=users[i].username%>" />
+                    <button class="chat-send">Send</button>
             </div>
         </div>
         <% } %>
@@ -60,7 +61,7 @@
 <!-- /#wrapper -->
 <% include footer.ejs %>
 
-<script src="/socket.io/socket.io.js"> </script>
+<script src="javascript/socket.io.js"> </script>
 
 <script>
     //Make Connection between Client and Server
@@ -162,8 +163,8 @@
         }
     });
 
-
-    messageP.bind('keyup', (event) => {
+    const sendMessage = (event) => {
+        console.log(event.handleObj.type);
         let sendTo = '#' + $(event.target).attr('data-username');
         let msg;
         if (event.keyCode === 13) {
@@ -176,7 +177,12 @@
             $(sendTo).find('.chat-output').append(`<p> <strong> ${userInfo.sender} </strong> ${msg} </p>`);
             messageP.val('');
         }
-    });
+    }
+
+    sendP.bind('click',sendMessage);
+    messageP.bind('keyup', sendMessage);
+
+    
 
     // // Broadcast Typing Message
     messageB.bind('keypress', () => {
