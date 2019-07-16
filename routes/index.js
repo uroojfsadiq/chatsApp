@@ -19,7 +19,7 @@ function isLoggedIn(req, res, next) {
 router.get('/', isLoggedIn, function(req, res) {
   User.find(function(err, doc) {
     userList = doc;
-    res.render('app', {
+    res.render('chatsapp', {
       users: userList, style: true,
       app: 'active', username: req.session.user.username,
     });
@@ -78,7 +78,7 @@ router.post('/register', function(req, res) {
 router.get('/logout', function(req, res) {
   async function logout() {
     req.session.user = '';
-    await res.redirect('/');
+    await res.redirect('/login');
   }
   logout();
 });
