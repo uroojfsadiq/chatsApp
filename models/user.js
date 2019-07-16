@@ -7,7 +7,6 @@ const UserSchema = new Schema({
   password: String,
   secretQues: String,
   secretAns: String,
-  status: String
 });
 
 UserSchema.plugin(passportLocalMongoose);

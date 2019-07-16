@@ -13,7 +13,6 @@ const MongoStore = require('connect-mongo')(session);
 
 // Routes
 const indexRouter = require('./routes/index');
-// const usersRouter = require('./routes/users');
 
 // Passport and Strategy
 const passport = require('passport');
@@ -58,14 +57,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-// app.use('/users', usersRouter);
 
 // Passport initialization and sessions
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Passport Strategy
-// passport.use(new LocalStrategy(User.authenticate()));
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());

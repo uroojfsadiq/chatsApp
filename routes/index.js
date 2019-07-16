@@ -10,59 +10,48 @@ let userList;
 // ensure authentication -- jugaari
 function isLoggedIn(req, res, next) {
   if (req.session.user === undefined || req.session.user === '') {
-    res.redirect('/');
+    res.redirect('/login');
   } else {
     return next();
   }
 }
 
+// Main Application
+router.get('/', isLoggedIn, function(req, res) {
+  User.find(function(err, doc) {
+    userList = doc;
+    res.render('app', {
+      users: userList, style: true,
+      app: 'active', username: req.session.user.username,
+    });
+  });
+});
+
 // Login routes
-router.get('/', function(req, res, next) {
+router.get('/login', function(req, res) {
   if (req.session.user === undefined || req.session.user === '') {
     res.render('login', {
       login: 'active',
       message: 'Please log in to continue',
     });
   } else {
-    res.render('login', {
-      login: 'active', hide: true,
-      message: `You are already signed in, ${req.session.user.username}`,
-    });
+    res.redirect('/');
   }
 });
 
-router.post('/', function(req, res, next) {
+router.post('/login', function(req, res) {
   passport.authenticate('local')(req, res, function() {
     req.session.user = req.user;
-    res.redirect('/home');
-  });
-});
-
-// Home & Rooms
-router.get('/home', isLoggedIn, function(req, res, next) {
-  User.find(function(err, docs) {
-    userList = docs;
-
-    res.render('home', {
-      users: userList, style: true,
-      home: 'active', username: req.session.user.username,
-    });
-  });
-});
-
-router.get('/private', isLoggedIn, function(req, res, next) {
-  res.render('private', {
-    style: true, private: 'active',
-    username: req.session.user.username,
+    res.redirect('/');
   });
 });
 
 // Register routes
-router.get('/register', function(req, res, next) {
+router.get('/register', function(req, res) {
   res.render('register', {register: 'active'});
 });
 
-router.post('/register', function(req, res, next) {
+router.post('/register', function(req, res) {
   User.findOne({username: req.body.username}, function(err, doc) {
     if (doc) {
       res.render('register', {
@@ -72,8 +61,7 @@ router.post('/register', function(req, res, next) {
     } else {
       User.register(new User({
         username: req.body.username, secretQues: req.body.secretQues,
-        secretAns: req.body.secretAns, status: 'Offline',
-      }), req.body.password, function(err) {
+        secretAns: req.body.secretAns}), req.body.password, function(err) {
         if (err) {
           res.render('register', {
             register: 'active',
@@ -81,7 +69,7 @@ router.post('/register', function(req, res, next) {
           });
         }
         passport.authenticate('local')(req, res, function() {
-          res.redirect('/');
+          res.redirect('/login');
         });
       });
     }
@@ -89,12 +77,11 @@ router.post('/register', function(req, res, next) {
 });
 
 // Forgot password
-
-router.get('/recover', function(req, res, next) {
+router.get('/recover', function(req, res) {
   res.render('recover', {recover: 'active', action: '/recover'});
 });
 
-router.post('/recover', function(req, res, next) {
+router.post('/recover', function(req, res) {
   User.findOne({username: req.body.username}, function(err, doc) {
     if (!doc) {
       res.render('recover', {
@@ -112,7 +99,7 @@ router.post('/recover', function(req, res, next) {
   });
 });
 
-router.post('/newpwd', function(req, res, next) {
+router.post('/newpwd', function(req, res) {
   User.findById(recoverUser).then(function(doc) {
     if (req.body.secretAns == doc.secretAns) {
       doc.setPassword('12345', function() {
@@ -137,7 +124,7 @@ router.post('/newpwd', function(req, res, next) {
 
 // Logout
 
-router.get('/logout', function(req, res, next) {
+router.get('/logout', function(req, res) {
   async function logout() {
     req.session.user = '';
     await res.redirect('/');
