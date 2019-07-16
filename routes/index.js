@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user.js');
-let recoverUser;
 let userList;
 
 // ensure authentication -- jugaari
@@ -60,8 +59,7 @@ router.post('/register', function(req, res) {
       });
     } else {
       User.register(new User({
-        username: req.body.username, secretQues: req.body.secretQues,
-        secretAns: req.body.secretAns}), req.body.password, function(err) {
+        username: req.body.username}), req.body.password, function(err) {
         if (err) {
           res.render('register', {
             register: 'active',
@@ -76,54 +74,7 @@ router.post('/register', function(req, res) {
   });
 });
 
-// Forgot password
-router.get('/recover', function(req, res) {
-  res.render('recover', {recover: 'active', action: '/recover'});
-});
-
-router.post('/recover', function(req, res) {
-  User.findOne({username: req.body.username}, function(err, doc) {
-    if (!doc) {
-      res.render('recover', {
-        recover: 'active', action: '/recover',
-        message: 'Username not found',
-      });
-    } else {
-      recoverUser = doc.id;
-      res.render('recover', {
-        forgot: true, question: doc.secretQues,
-        action: '/newpwd', user: doc.username, recover: 'active',
-        disabled: 'disabled',
-      });
-    }
-  });
-});
-
-router.post('/newpwd', function(req, res) {
-  User.findById(recoverUser).then(function(doc) {
-    if (req.body.secretAns == doc.secretAns) {
-      doc.setPassword('12345', function() {
-        doc.save();
-        res.render('recover', {
-          recover: 'active', hide: true,
-          message: 'Your new password is 12345',
-        });
-      });
-    } else {
-      res.render('recover', {
-        forgot: true, question: doc.secretQues,
-        action: '/newpwd', user: doc.username, recover: 'active',
-        disabled: 'disabled',
-        message: 'Incorrect Answer. Try Again',
-      });
-    }
-  }, function(err) {
-    console.error(err);
-  });
-});
-
 // Logout
-
 router.get('/logout', function(req, res) {
   async function logout() {
     req.session.user = '';
