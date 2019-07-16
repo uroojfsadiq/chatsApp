@@ -1,5 +1,8 @@
 <% include header.ejs %>
-<div class="row my-2 mx-5">
+<div class="row my-1 mx-3">
+    <div class="col-md-12">
+        <h2 class="text-center text-capitalize"> Welcome to the ChatsApp, <%= locals.username %> ... </h2>
+    </div>
 </div>
 <div class="d-flex" id="wrapper">
     <!-- Sidebar -->
@@ -7,14 +10,15 @@
         <div class="sidebar-heading"> ROOMS & USERS </div>
         <div class="list-group list-group-flush">
             <a href="#broadcast" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="broadcast"
-                class="list-group-item list-group-item-action bg-light">
+                class="list-group-item list-group-item-action bg-light font-weight-bold">
                 Broadcast Room </a>
-            <% for (let i=0; i < users.length; i++) { %>
-            <a href="#<%=users[i].username%>" data-toggle="collapse" role="button" aria-expanded="false"
-                aria-controls="private" class="list-group-item list-group-item-action bg-light userlist"
-                data-username="<%= users[i].username %>" data-socketID="">
+            <% for (let i=0; i < locals.users.length; i++) { %>
+            <a href="#<%=locals.users[i].username%>" data-toggle="collapse" role="button" aria-expanded="false"
+                aria-controls="<%=locals.users[i].username%>"
+                class="list-group-item list-group-item-action bg-light userlist"
+                data-username="<%=locals.users[i].username%>" data-socketID="">
                 <button type="button" class="btn btn-default btn-circle status"></button>
-                <%= users[i].username %> </a>
+                <%= locals.users[i].username %> </a>
             <% } %>
         </div>
     </div>
@@ -23,19 +27,20 @@
     <div id="page-content-wrapper">
         <button class="btn btn-secondary mb-3 mt-2 mx-2 btn-sm" id="menu-toggle">Userlist</button>
         <div class="container-fluid collapse" id="broadcast">
+            <!-- Chat Window -->
             <div class="card card-body">
                 <div class="chat-window">
                     <div class="chat-output"></div>
                     <div class="typing"></div>
                     <div class="notification"></div>
                 </div>
-
                 <input class="chat-message" type="text" placeholder="Message" />
                 <button class="chat-send">Send</button>
             </div>
+            <!-- Chat window ends -->
         </div>
 
-        <% for (let i=0; i < users.length; i++) { %>
+        <!-- <% for (let i=0; i < users.length; i++) { %>
 
         <div class="container-fluid collapse private" id="<%=users[i].username%>">
             <div class="card card-body">
@@ -47,10 +52,10 @@
                 <input class="chat-message messageBox" type="text"
                     placeholder="Message ~<%=users[i].username%>~ and press Enter"
                     data-username="<%=users[i].username%>" />
-                    <button class="chat-send">Send</button>
+                <button class="chat-send">Send</button>
             </div>
         </div>
-        <% } %>
+        <% } %> -->
     </div>
 
     <!-- /#page-content-wrapper -->
@@ -59,11 +64,9 @@
 <!-- /#wrapper -->
 <% include footer.ejs %>
 
-<script src="javascript/socket.io.js"> </script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
-    //Make Connection between Client and Server
-    const socket = io.connect('https://whatever15.herokuapp.com');
     $('.collapse').on('show.bs.collapse', function () {
         $('.collapse').each(function () {
             $(this).collapse('hide');
@@ -74,43 +77,31 @@
         $("#wrapper").toggleClass("toggled");
     });
 
+    //Make Connection between Client and Server
+    const socket = io.connect('http://localhost:3000');
+
     // Get elements from DOM
     const sender = '<%=locals.username%>';
     const outputB = $('#broadcast').find('.chat-output');
-    // const outputP = $('.private').find('.chat-output');
-
     const messageB = $('#broadcast').find('.chat-message');
-    const messageP = $('.private').find('.chat-message');
-
     const sendB = $('#broadcast').find('.chat-send');
-    const sendP = $('.private').find('.chat-send');
-
     const typingB = $('#broadcast').find('.typing');
     const notiB = $('#broadcast').find('.notification');
-
+    // PRIVATE CHATS
+    const messageP = $('.private').find('.chat-message');
+    const sendP = $('.private').find('.chat-send');
     //To get users from sidebar
     const userlist = $('.userlist');
-
-    //To get private message boxes
-    const messageBox = $('.messageBox');
-
     // Current user
     const userInfo = {
         sender: sender,
     }
 
-    // Make oneself online
-    function youAreOnline() {
+    // Hide yourself from the userlist
+    function chupJao() {
         for (let i = 0; i < userlist.length; i++) {
             if (userlist[i].dataset.username.trim() == sender) {
-                userlist[i].querySelector('.status').classList.add('online');
-                userlist[i].dataset.socketID = userInfo.socketID;
-            }
-        }
-
-        for (let i = 0; i < messageBox.length; i++) {
-            if (messageBox[i].dataset.username.trim() == sender) {
-                messageBox[i].setAttribute('id', userInfo.socketID)
+                userlist[i].classList.add('hideUser');
             }
         }
     }
@@ -120,7 +111,7 @@
         // to save our own socket id
         userInfo.socketID = socket.id;
         socket.emit('newUser', userInfo);
-        youAreOnline();
+        chupJao();
     })
 
     //Update already online users
@@ -132,55 +123,43 @@
                     userlist[i].dataset.socketID = data[j].socketID;
                 }
             }
-            for (let i = 0; i < messageBox.length; i++) {
-                if (messageBox[i].dataset.username.trim() == data[j].sender) {
-                    messageBox[i].setAttribute('id', data[j].socketID)
-                }
-            }
         }
     })
 
 
     //Add Event Listeners and Emit Events
-    sendB.bind('click', () => {
-        socket.emit('chat', {
-            message: messageB.val(),
-            sender: sender
-        });
-        messageB.val('');
-    });
-
-    // Enter key sends a message too
-    messageB.bind('keyup', (event) => {
-        if (event.keyCode === 13) {
+    function sendBM() {
+        if (event instanceof MouseEvent || event.keyCode === 13) {
             socket.emit('chat', {
                 message: messageB.val(),
                 sender: sender
             });
             messageB.val('');
         }
-    });
-
-    const sendMessage = (event) => {
-        console.log(event.handleObj.type);
-        let sendTo = '#' + $(event.target).attr('data-username');
-        let msg;
-        if (event.keyCode === 13) {
-            msg = $(event.target).val();
-            socket.emit('pvtMsg', {
-                message: $(event.target).val(),
-                sender: userInfo.socketID,
-                sendTo: $(event.target).attr('id'),
-            });
-            $(sendTo).find('.chat-output').append(`<p> <strong> ${userInfo.sender} </strong> ${msg} </p>`);
-            messageP.val('');
-        }
     }
+    sendB.bind('click', sendBM);
+    messageB.bind('keyup', sendBM);
 
-    sendP.bind('click',sendMessage);
-    messageP.bind('keyup', sendMessage);
+    // const sendMessage = (event) => {
+    //     console.log(event.handleObj.type);
+    //     let sendTo = '#' + $(event.target).attr('data-username');
+    //     let msg;
+    //     if (event.keyCode === 13) {
+    //         msg = $(event.target).val();
+    //         socket.emit('pvtMsg', {
+    //             message: $(event.target).val(),
+    //             sender: userInfo.socketID,
+    //             sendTo: $(event.target).attr('id'),
+    //         });
+    //         $(sendTo).find('.chat-output').append(`<p> <strong> ${userInfo.sender} </strong> ${msg} </p>`);
+    //         messageP.val('');
+    //     }
+    // }
 
-    
+    // sendP.bind('click', sendMessage);
+    // messageP.bind('keyup', sendMessage);
+
+
 
     // // Broadcast Typing Message
     messageB.bind('keypress', () => {
@@ -192,29 +171,27 @@
 
 
     // // Listen to Events
-
-
     socket.on('chat', (data) => {
         typingB.html('');
         outputB.append(`<p> <strong> ${data.sender} </strong>
       ${data.message} </p>`);
     })
 
-    socket.on('pvtMsg', (data) => {
-        let from;
-        let to;
-        for (i = 0; i < userlist.length; i++) {
-            if (userlist[i].dataset.socketID == data.sender) {
-                from = '#' + userlist[i].dataset.username.trim();
-            }
-            if (userlist[i].dataset.socketID == data.sendTo) {
-                to = '#' + userlist[i].dataset.username.trim();
-            }
-        }
+    // socket.on('pvtMsg', (data) => {
+    //     let from;
+    //     let to;
+    //     for (i = 0; i < userlist.length; i++) {
+    //         if (userlist[i].dataset.socketID == data.sender) {
+    //             from = '#' + userlist[i].dataset.username.trim();
+    //         }
+    //         if (userlist[i].dataset.socketID == data.sendTo) {
+    //             to = '#' + userlist[i].dataset.username.trim();
+    //         }
+    //     }
 
-        $(from).find('.chat-output').append(`<p> <strong> ${from} </strong> ${data.message} </p>`);
-        // $(from).find('.chat-ouput').append(`<p> <strong> ${us} </strong> ${data.message} </p>`);
-    })
+    //     $(from).find('.chat-output').append(`<p> <strong> ${from} </strong> ${data.message} </p>`);
+    //     // $(from).find('.chat-ouput').append(`<p> <strong> ${us} </strong> ${data.message} </p>`);
+    // })
 
     socket.on('typing', (data) => {
         typingB.html(`<p> <em> ${data.sender} is typing a message..
@@ -229,11 +206,6 @@
                 userlist[i].dataset.socketID = data.socketID;
             }
         }
-        for (let i = 0; i < messageBox.length; i++) {
-            if (messageBox[i].dataset.username.trim() == data.sender) {
-                messageBox[i].setAttribute('id', data.socketID)
-            }
-        }
     })
 
     socket.on('userLeft', (data) => {
@@ -243,11 +215,6 @@
                 if (userlist[i].dataset.username.trim() == data) {
                     userlist[i].querySelector('.status').classList.remove('online');
                     userlist[i].dataset.socketID = '';
-                }
-            }
-            for (let i = 0; i < messageBox.length; i++) {
-                if (messageBox[i].dataset.username.trim() == data) {
-                    messageBox[i].setAttribute('id', '');
                 }
             }
         }

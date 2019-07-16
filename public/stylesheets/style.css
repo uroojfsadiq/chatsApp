@@ -11,7 +11,11 @@
 }
 
 .online {
-  background: rgb(106, 232, 9)
+  background: rgb(106, 232, 9);
+}
+
+.hideUser {
+  display: none;
 }
 
 /* #broadcast{

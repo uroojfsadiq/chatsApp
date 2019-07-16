@@ -31,7 +31,7 @@ router.get('/login', function(req, res) {
   if (req.session.user === undefined || req.session.user === '') {
     res.render('login', {
       login: 'active',
-      message: 'Please log in to continue',
+      message: 'Please log in to continue.',
     });
   } else {
     res.redirect('/');
@@ -55,7 +55,7 @@ router.post('/register', function(req, res) {
     if (doc) {
       res.render('register', {
         register: 'active',
-        message: 'Username already exists.Please choose another',
+        message: 'Username already exists. Please choose another and try again.',
       });
     } else {
       User.register(new User({
