@@ -22,7 +22,7 @@ const User = require('./models/user');
 const app = express();
 
 // Socket IO
-const server = app.listen(443);
+const server = app.listen(3000);
 const socket = require('socket.io');
 const io = socket.listen(server);
 
@@ -70,8 +70,9 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-let onlineUsers = [];
+
 // Socket IO
+let onlineUsers = [];
 io.on('connection', (socket) => {
   io.sockets.emit('onlineUsers', onlineUsers);
 
@@ -90,9 +91,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('pvtMsg', (data) => {
-    console.log(data);
     io.sockets.to(`${data.sendTo}`).emit('pvtMsg', data);
-    // io.sockets.to(`${data.sender}`).emit('pvtMsg', data);
   });
 
   socket.on('disconnect', (data) => {
@@ -101,7 +100,6 @@ io.on('connection', (socket) => {
         data = user.sender;
       }
     });
-
     socket.broadcast.emit('userLeft', data);
     console.log(`${data} is offline`);
     onlineUsers = onlineUsers.filter((user) => {
