@@ -43,7 +43,7 @@ app.use(session({
   secret: 'topSecret',
   resave: true,
   saveUninitialized: true,
-  store: new MongoStore({ mongooseConnection: mongoose.connection }),
+  store: new MongoStore({mongooseConnection: mongoose.connection}),
 }));
 
 // view engine setup
@@ -52,7 +52,7 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -87,31 +87,36 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('typing', data);
   });
 
-  socket.on('pvtMsg', (data) => {
-    io.sockets.to(`${data.sendTo}`).emit('pvtMsg', data);
+  socket.on('PM', (data) => {
+    if (data.sendTo == '') {
+      io.sockets.to(`${data.senderId}`).emit('PMerror', data);
+    } else {
+      io.sockets.to(`${data.sendTo}`).emit('PMsuccess', data);
+      io.sockets.to(`${data.senderId}`).emit('PMupdate', data);
+    }
   });
 
   socket.on('disconnect', (data) => {
-    onlineUsers.forEach(function (user) {
-      if (user.socketID == socket.id) {
+    onlineUsers.forEach(function(user) {
+      if (user.socket == socket.id) {
         data = user.sender;
       }
     });
     socket.broadcast.emit('userLeft', data);
     console.log(`${data} is offline`);
     onlineUsers = onlineUsers.filter((user) => {
-      return user.socketID != socket.id;
+      return user.socket != socket.id;
     });
   });
 });
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
