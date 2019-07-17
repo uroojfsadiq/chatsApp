@@ -18,6 +18,10 @@
   display: none;
 }
 
+.newMessage {
+  margin-left: 15px;
+}
+
 /* #broadcast{
   max-width: 800px;
   margin: auto;
