@@ -30,18 +30,20 @@
         <div class="container"> <a class="navbar-brand" href="https://codegirls.consulnet.net/" target="_blank">CODEGIRLS</a>
             <div class="collapse navbar-collapse" id="navbarsExampleDefault">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item <%= locals.login %>">
-                        <a class="nav-link" href="/login"> Login </a>
-                    </li>
+                    
                     <li class="nav-item <%= locals.app %>">
                         <a class="nav-link" href="/"> ChatsApp </a>
                     </li>
-                    <li class="nav-item <%= locals.logout %>">
-                        <a class="nav-link" href="/logout"> Logout </a>
-                    </li>
+                    <li class="nav-item <%= locals.login %>">
+                            <a class="nav-link" href="/login"> Login </a>
+                        </li>
+                    
                     <li class="nav-item <%= locals.register %>">
                         <a class="nav-link" href="/register"> Register </a>
                     </li>
+                    <li class="nav-item <%= locals.logout %>">
+                            <a class="nav-link" href="/logout"> Logout </a>
+                        </li>
                 </ul>
             </div>
         </div>

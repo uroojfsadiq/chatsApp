@@ -43,6 +43,7 @@ router.get('/login', function(req, res) {
 
 router.post('/login', function(req, res) {
   passport.authenticate('local')(req, res, function() {
+    // To save user in session.. 
     req.session.user = req.user;
     res.redirect('/');
   });
