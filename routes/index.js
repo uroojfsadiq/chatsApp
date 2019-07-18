@@ -1,9 +1,12 @@
 /* eslint-disable require-jsdoc */
 const express = require('express');
+
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user.js');
+
+// to send list of all users to client-side
 let userList;
 
 // ensure authentication -- jugaari
@@ -55,15 +58,16 @@ router.post('/register', function(req, res) {
     if (doc) {
       res.render('register', {
         register: 'active',
-        message: 'Username already exists. Please choose another and try again.',
+        message: 'Username already exists. Please choose another & try again.',
       });
     } else {
       User.register(new User({
-        username: req.body.username}), req.body.password, function(err) {
+        username: req.body.username,
+      }), req.body.password, function(err) {
         if (err) {
           res.render('register', {
             register: 'active',
-            message: 'There was some error. Please try again',
+            message: 'Error: Please try again.',
           });
         }
         passport.authenticate('local')(req, res, function() {
@@ -74,13 +78,27 @@ router.post('/register', function(req, res) {
   });
 });
 
+// Ajax request to check if username already exists..
+router.post('/check-:username', function(req, res) {
+  User.findOne({username: req.params.username}, function(err, doc) {
+    if (doc) {
+      res.send('taken');
+    } else {
+      res.send('not-taken');
+    }
+  });
+});
+
+
 // Logout
 router.get('/logout', function(req, res) {
-  async function logout() {
-    req.session.user = '';
-    await res.redirect('/login');
-  }
-  logout();
+  req.session.destroy(function(err) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect('/login');
+    }
+  });
 });
 
 
