@@ -31,58 +31,61 @@
 </div>
 <% include footer.ejs %>
 <script>
-    // Setup function to check username 0.4 seconds after user stops typing..
-    let typingTimer;
-    let doneTypingInterval = 300;
-    // Starts countdown on keyup
-    $('#username').keyup(function () {
-        clearTimeout(typingTimer);
-        if ($('#username').val()) {
-            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+    /* eslint-disable require-jsdoc */
+// Setup function to check username 0.4 seconds after user stops typing..
+let typingTimer;
+const doneTypingInterval = 300;
+// Starts countdown on keyup
+$('#username').keyup(function() {
+  clearTimeout(typingTimer);
+  if ($('#username').val()) {
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+  } else if (!$('#username').val()) {
+    $('#errorMessage').html(`<p class="text-danger"> 
+    Username cannot be blank. </p>`);
+  }
+});
+
+// Function for when user has finished typing..
+function doneTyping() {
+  const usernameValue = $('#username').val();
+  if (usernameValue !== '') {
+    $.ajax({
+      url: '/check-' + usernameValue,
+      type: 'POST',
+      success: function(response) {
+        if (response == 'taken') {
+          $('#errorMessage').html(`<p class="text-danger"> 
+          Username already taken. </p>`);
+          $('#password, #repeat-password').attr('disabled', true);
+        } else if (response == 'not-taken') {
+          $('#errorMessage').html(`<p class="text-success"> 
+          Username Available. </p>`);
+          $('#password, #repeat-password').attr('disabled', false);
         }
-        else if (!$('#username').val()) {
-            $('#errorMessage').html('<p class="text-danger"> Username cannot be blank. </p>');
-        }
+      },
     });
+  }
+}
 
-    // Function for when user has finished typing..
-    function doneTyping() {
-        const usernameValue = $('#username').val();
-        if (usernameValue !== '') {
-            $.ajax({
-                url: '/check-' + usernameValue,
-                type: 'POST',
-                success: function (response) {
-                    if (response == 'taken') {
-                        $('#errorMessage').html('<p class="text-danger"> Username already taken. </p>');
-                        $('#password, #repeat-password').attr('disabled', true)
-                    }
-                    else if (response == 'not-taken') {
-                        $('#errorMessage').html('<p class="text-success"> Username Available. </p>');
-                        $('#password, #repeat-password').attr('disabled', false)
-                    }
-                }
-            })
-        }
-    }
+// Starts countdown on keyup FOR REPEAT PASSWORD
+$('#repeat-password').keyup(function() {
+  clearTimeout(typingTimer);
+  if ($('#repeat-password').val()) {
+    typingTimer = setTimeout(checkPwd, doneTypingInterval);
+  }
+});
 
-    // Starts countdown on keyup FOR REPEAT PASSWORD
-    $('#repeat-password').keyup(function () {
-        clearTimeout(typingTimer);
-        if ($('#repeat-password').val()) {
-            typingTimer = setTimeout(checkPwd, doneTypingInterval);
-        }
-    });
+function checkPwd() {
+  if ($('#password').val() !== $('#repeat-password').val()) {
+    $('#errorPassword').html(`<p class="text-danger"> 
+    Passwords do not match. </p>`);
+  } else {
+    $('#errorPassword').html('');
+    $('#submit').removeAttr('disabled');
+  }
+}
 
-    function checkPwd() {
-        if ($('#password').val() !== $('#repeat-password').val()) {
-            $('#errorPassword').html('<p class="text-danger"> Passwords do not match. </p>');
-        }
-        else {
-            $('#errorPassword').html('');
-            $('#submit').removeAttr('disabled');
-        }
-    }
 
 </script>
 </body>

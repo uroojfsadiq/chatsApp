@@ -64,184 +64,182 @@
 </div>
 <!-- /#wrapper -->
 <% include footer.ejs %>
-
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    $('.collapse').on('show.bs.collapse', function () {
-        $('.collapse').each(function () {
+        $('.collapse').on('show.bs.collapse', function() {
+          $('.collapse').each(function() {
             $(this).collapse('hide');
+          });
         });
-    });
-    $("#menu-toggle").click(function (e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
-
-    //Make Connection between Client and Server
-    const socket = io.connect('http://localhost:3000');
-
-    // Get elements from DOM
-    const sender = '<%=locals.username%>';
-    const outputB = $('#broadcast').find('.chat-output');
-    const messageB = $('#broadcast').find('.chat-message');
-    const sendB = $('#broadcast').find('.chat-send');
-    const typingB = $('#broadcast').find('.typing');
-    const notiB = $('#broadcast').find('.notification');
-    // PRIVATE CHATS
-    const messageP = $('.private').find('.chat-message');
-    const sendP = $('.private').find('.chat-send');
-    const private = $('.private');
-    const newMessage = $('.newMessage');
-    //To get users from sidebar
-    const userlist = $('.userlist');
-    // Current user
-    const userInfo = {
-        sender: sender,
-    }
-
-    // Hide yourself from the userlist
-    function chupJao() {
-        for (let i = 0; i < userlist.length; i++) {
+        $('#menu-toggle').click(function(e) {
+          e.preventDefault();
+          $('#wrapper').toggleClass('toggled');
+        });
+        
+        // Make Connection between Client and Server
+        const socket = io.connect('http://localhost:3000');
+        
+        // Get elements from DOM
+        const sender = '<%=locals.username%>';
+        const outputB = $('#broadcast').find('.chat-output');
+        const messageB = $('#broadcast').find('.chat-message');
+        const sendB = $('#broadcast').find('.chat-send');
+        const typingB = $('#broadcast').find('.typing');
+        const notiB = $('#broadcast').find('.notification');
+        // PRIVATE CHATS
+        const messageP = $('.private').find('.chat-message');
+        const sendP = $('.private').find('.chat-send');
+        const private = $('.private');
+        const newMessage = $('.newMessage');
+        // To get users from sidebar
+        const userlist = $('.userlist');
+        // Current user
+        const userInfo = {
+          sender: sender,
+        };
+        
+        // Hide yourself from the userlist
+        function chupJao() {
+          for (let i = 0; i < userlist.length; i++) {
             if (userlist[i].dataset.username.trim() == sender) {
-                userlist[i].classList.add('hideUser');
+              userlist[i].classList.add('hideUser');
             }
+          }
         }
-    }
-
-    // Emit Online Notification to other users
-    socket.on('connect', () => {
-
-        // to save our own socket id
-        userInfo.socket = socket.id;
-        socket.emit('newUser', userInfo);
-        chupJao();
-    })
-
-    //Update already online users
-    socket.on('onlineUsers', (data) => {
-        for (let j = 0; j < data.length; j++) {
+        
+        // Emit Online Notification to other users
+        socket.on('connect', () => {
+          // to save our own socket id
+          userInfo.socket = socket.id;
+          socket.emit('newUser', userInfo);
+          chupJao();
+        });
+        
+        // Update already online users
+        socket.on('onlineUsers', (data) => {
+          for (let j = 0; j < data.length; j++) {
             for (let i = 0; i < userlist.length; i++) {
-                if (userlist[i].dataset.username.trim() == data[j].sender) {
-                    userlist[i].querySelector('.status').classList.add('online');
-                    userlist[i].dataset.socket = data[j].socket;
-                    private[i].dataset.socket = data[j].socket;
-                }
+              if (userlist[i].dataset.username.trim() == data[j].sender) {
+                userlist[i].querySelector('.status').classList.add('online');
+                userlist[i].dataset.socket = data[j].socket;
+                private[i].dataset.socket = data[j].socket;
+              }
             }
-        }
-    })
-
-    //Add Event Listeners and Emit Events
-    function sendBM() {
-        if (event instanceof MouseEvent || event.keyCode === 13) {
+          }
+        });
+        
+        // Add Event Listeners and Emit Events
+        function sendBM() {
+          if (event instanceof MouseEvent || event.keyCode === 13) {
             socket.emit('chat', {
-                message: messageB.val(),
-                sender: sender
+              message: messageB.val(),
+              sender: sender,
             });
             messageB.val('');
+          }
         }
-    }
-    function sendPM() {
-        if (event instanceof MouseEvent || event.keyCode === 13) {
+        function sendPM() {
+          if (event instanceof MouseEvent || event.keyCode === 13) {
             socket.emit('PM', {
-                message: $(this).val(),
-                sender: userInfo.sender,
-                senderId: userInfo.socket,
-                sendTo: $(this).parent('div').parent('div').attr('data-socket'),
-                toUser: $(this).parent('div').parent('div').attr('id'),
+              message: $(this).val(),
+              sender: userInfo.sender,
+              senderId: userInfo.socket,
+              sendTo: $(this).parent('div').parent('div').attr('data-socket'),
+              toUser: $(this).parent('div').parent('div').attr('id'),
             });
             messageP.val('');
+          }
         }
-    }
-    sendB.bind('click', sendBM);
-    messageB.bind('keyup', sendBM);
-    sendP.bind('click', sendPM);
-    messageP.bind('keyup', sendPM);
-
-    // // Broadcast Typing Message
-    messageB.bind('keypress', () => {
-        socket.emit('typing', {
-            sender: sender
+        sendB.bind('click', sendBM);
+        messageB.bind('keyup', sendBM);
+        sendP.bind('click', sendPM);
+        messageP.bind('keyup', sendPM);
+        
+        // // Broadcast Typing Message
+        messageB.bind('keypress', () => {
+          socket.emit('typing', {
+            sender: sender,
+          });
         });
-    })
-
-    // // Listen to Events
-    socket.on('chat', (data) => {
-        typingB.html('');
-        outputB.append(`<p> <strong> ${data.sender} </strong>
-                        ${data.message} </p>`);
-    })
-function check() {
-    $(event.target).find('.newMessage').addClass('hideUser');
-}
-    socket.on('PMsuccess', (data) => {
-        let from;
-        for (i = 0; i < userlist.length; i++) {
+        
+        // // Listen to Events
+        socket.on('chat', (data) => {
+          typingB.html('');
+          outputB.append(`<p> <strong> ${data.sender} </strong>
+                                ${data.message} </p>`);
+        });
+        function check() {
+          $(event.target).find('.newMessage').addClass('hideUser');
+        }
+        socket.on('PMsuccess', (data) => {
+          let from;
+          for (i = 0; i < userlist.length; i++) {
             if (userlist[i].dataset.username == data.sender) {
-                userlist[i].querySelector('.newMessage').classList.remove('hideUser');
-                from = '#' + userlist[i].dataset.username.trim();
+              userlist[i].querySelector('.newMessage').classList.remove('hideUser');
+              from = '#' + userlist[i].dataset.username.trim();
             }
-        }
-        $(from).find('.chat-output').append(`<p> <strong> ${data.sender} </strong> ${data.message} </p>`);
-    })
-
-    socket.on('PMupdate', (data) => {
-        let from;
-        for (i = 0; i < userlist.length; i++) {
+          }
+          $(from).find('.chat-output').append(`<p> 
+          <strong> ${data.sender} </strong> ${data.message} </p>`);
+        });
+        
+        socket.on('PMupdate', (data) => {
+          let from;
+          for (i = 0; i < userlist.length; i++) {
             if (userlist[i].dataset.username == data.toUser) {
-                from = '#' + userlist[i].dataset.username.trim();
+              from = '#' + userlist[i].dataset.username.trim();
             }
-        }
-        $(from).find('.chat-output').append(`<p> <strong> ${data.sender} </strong> ${data.message} </p>`);
-    });
-
-    socket.on('PMerror', (data) => {
-        let from;
-        for (i = 0; i < userlist.length; i++) {
+          }
+          $(from).find('.chat-output').append(`<p> 
+          <strong> ${data.sender} </strong> ${data.message} </p>`);
+        });
+        
+        socket.on('PMerror', (data) => {
+          let from;
+          for (i = 0; i < userlist.length; i++) {
             if (userlist[i].dataset.username == data.toUser) {
-                from = '#' + userlist[i].dataset.username.trim();
+              from = '#' + userlist[i].dataset.username.trim();
             }
-        }
-        $(from).find('.chat-output').append(`<p> <strong> Cannot send a message to offline user. </strong> </p>`);
-    })
-
-    socket.on('typing', (data) => {
-        typingB.html(`<p> <em> ${data.sender} is typing a message..
-                        </em> </p>`);
-    })
-
-    socket.on('newUser', (data) => {
-        outputB.append(`<p> ${data.sender} is online`);
-        for (let i = 0; i < userlist.length; i++) {
+          }
+          $(from).find('.chat-output').append(`<p> 
+          <strong> Cannot send a message to offline user. </strong> </p>`);
+        });
+        
+        socket.on('typing', (data) => {
+          typingB.html(`<p> <em> ${data.sender} is typing a message..
+                                </em> </p>`);
+        });
+        
+        socket.on('newUser', (data) => {
+          outputB.append(`<p> ${data.sender} is online`);
+          for (let i = 0; i < userlist.length; i++) {
             if (userlist[i].dataset.username.trim() == data.sender) {
-                userlist[i].querySelector('.status').classList.add('online');
-                userlist[i].dataset.socket = data.socket;
-                private[i].dataset.socket = data.socket;
+              userlist[i].querySelector('.status').classList.add('online');
+              userlist[i].dataset.socket = data.socket;
+              private[i].dataset.socket = data.socket;
             }
-        }
-    })
-
-    socket.on('userLeft', (data) => {
-        if (data !== 'transport close') {
+          }
+        });
+        
+        socket.on('userLeft', (data) => {
+          if (data !== 'transport close') {
             outputB.append(`<p> ${data} is offline`);
             for (let i = 0; i < userlist.length; i++) {
-                if (userlist[i].dataset.username.trim() == data) {
-                    userlist[i].querySelector('.status').classList.remove('online');
-                    userlist[i].dataset.socket = '';
-                    private[i].dataset.socket = '';
-                }
+              if (userlist[i].dataset.username.trim() == data) {
+                userlist[i].querySelector('.status').classList.remove('online');
+                userlist[i].dataset.socket = '';
+                private[i].dataset.socket = '';
+              }
             }
-        }
-    })
-
-
-    // Disconnect user
-    socket.on('disconnect', () => {
-    });
-
-
-
-
-</script>
+          }
+        });
+        
+        
+        // Disconnect user
+        socket.on('disconnect', () => {
+        });
+        
+        </script>
+        
 </body>
-
 </html>
