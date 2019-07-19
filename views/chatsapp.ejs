@@ -249,13 +249,15 @@
   });
 
   socket.on('newUser', (data) => {
-    outputB.append(`<p> ${data.sender} is online`);
+    if(data !== '') {
+      outputB.append(`<p> ${data.sender} is online`);
     for (let i = 0; i < userlist.length; i++) {
       if (userlist[i].dataset.username.trim() == data.sender) {
         userlist[i].querySelector('.status').classList.add('online');
         userlist[i].dataset.socket = data.socket;
         private[i].dataset.socket = data.socket;
       }
+    }
     }
   });
 
