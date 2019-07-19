@@ -102,5 +102,10 @@ router.get('/logout', function(req, res) {
   });
 });
 
+// Multiple Tabs
+router.get('/multipleTabs', function(req, res) {
+  res.render('multipleTabs');
+});
+
 
 module.exports = router;

@@ -272,9 +272,14 @@
     }
   });
 
+  socket.on('multipleTabs', () => {
+    window.location = '/multipleTabs';
+  });
 
-  // Disconnect user
+
+  // Send user Info when user disconnects.
   socket.on('disconnect', () => {
+
   });
 
 </script>

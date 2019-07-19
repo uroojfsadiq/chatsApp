@@ -74,6 +74,12 @@ io.on('connection', (socket) => {
   io.sockets.emit('onlineUsers', onlineUsers);
 
   socket.on('newUser', (data) => {
+    onlineUsers.forEach(function(user) {
+      if (user.sender == data.sender) {
+        socket.emit('multipleTabs');
+        data = '';
+      }
+    });
     socket.broadcast.emit('newUser', data);
     console.log(`${data.sender} is online`);
     onlineUsers.push(data);
