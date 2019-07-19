@@ -71,7 +71,7 @@
     clicked = $(e.target).attr('id');
   });
 
-  $('.collapse').on('hide.bs.collapse', function(e) {
+  $('.collapse').on('hide.bs.collapse', function (e) {
     clicked = '';
   })
 
@@ -101,7 +101,7 @@
   const userInfo = {
     sender: sender,
   };
- 
+
   // Hide yourself from the userlist
   function chupJao() {
     for (let i = 0; i < userlist.length; i++) {
@@ -110,6 +110,7 @@
       }
     }
   }
+  
 
   // Emit Online Notification to other users
   socket.on('connect', () => {
@@ -150,23 +151,35 @@
   }
 
   function sendPM() {
-    if (event instanceof MouseEvent || event.keyCode === 13) {
-      if ($(this).val().trim() == '') {
-        $(this).attr('placeholder', 'Message cannot be blank');
+    let messageBox;
+    if (event.keyCode === 13) {
+      messageBox = $(this);
+      callback()
+    }
+    else if (event instanceof MouseEvent) {
+      messageBox = $(this).siblings('.chat-message');
+      callback()
+    }
+
+    function callback() {
+      if (messageBox.val().trim() == '') {
+        messageBox.attr('placeholder', 'Message cannot be blank');
       }
       else {
         socket.emit('PM', {
-          message: $(this).val(),
+          message: messageBox.val(),
           sender: userInfo.sender,
           senderId: userInfo.socket,
-          sendTo: $(this).parent('div').parent('div').attr('data-socket'),
-          toUser: $(this).parent('div').parent('div').attr('id'),
+          sendTo: messageBox.parent('div').parent('div').attr('data-socket'),
+          toUser: messageBox.parent('div').parent('div').attr('id'),
         });
-        messageP.val('');
-        messageP.attr('placeholder', 'Message');
+        messageBox.val('');
+        messageBox.attr('placeholder', 'Message');
       }
     }
   }
+
+
   sendB.bind('click', sendBM);
   messageB.bind('keyup', sendBM);
   sendP.bind('click', sendPM);
@@ -199,7 +212,7 @@
     for (i = 0; i < userlist.length; i++) {
       if (userlist[i].dataset.username == data.sender) {
         from = '#' + userlist[i].dataset.username.trim();
-        if(clicked != data.sender) {
+        if (clicked != data.sender) {
           userlist[i].querySelector('.newMessage').classList.remove('hideUser');
         }
       }
