@@ -73,6 +73,7 @@ router.post('/register', function(req, res) {
         }
         passport.authenticate('local')(req, res, function() {
           res.redirect('/login');
+          // res.send('hello');
         });
       });
     }
