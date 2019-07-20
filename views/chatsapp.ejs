@@ -1,7 +1,7 @@
 <% include header.ejs %>
 <div class="row my-1 mx-3">
   <div class="col-md-12">
-    <h2 class="text-center text-capitalize"> Welcome to the ChatsApp,
+    <h2 class="text-center "> Welcome to the ChatsApp,
       <%= locals.username %> ... </h2>
   </div>
 </div>
@@ -28,7 +28,7 @@
   <!-- MAIN CONTENT -->
   <div id="page-content-wrapper">
     <button class="btn btn-secondary mb-3 mt-2
-          mx-2 btn-sm" id="menu-toggle"><i class="fas fa-sliders-h"></i></button>
+          mx-2 btn-sm" id="menu-toggle"><i class="fas fa-sliders-h"> Userlist </i></button>
     <!-- BROADCAST CHAT -->
     <div class="container-fluid collapse" id="broadcast">
       <!-- CHAT WINDOW -->
@@ -91,7 +91,7 @@
   });
 
   // Make Connection between Client and Server
-  const socket = io.connect('http://localhost:3000');
+  const socket = io.connect('http://ec6ce5f0.ngrok.io');
 
   // Get elements from DOM
   const sender = '<%=locals.username%>';
@@ -259,6 +259,7 @@
   });
 
   socket.on('newUser', (data) => {
+    let oldUser;
     if(data !== '') {
       outputB.append(`<p> ${data.sender} is online`);
     for (let i = 0; i < userlist.length; i++) {
@@ -266,7 +267,11 @@
         userlist[i].querySelector('.status').classList.add('online');
         userlist[i].dataset.socket = data.socket;
         private[i].dataset.socket = data.socket;
+        oldUser = true;
       }
+    }
+    if(!oldUser){
+      window.location
     }
     }
   });
