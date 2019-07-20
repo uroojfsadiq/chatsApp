@@ -29,6 +29,11 @@ router.get('/', isLoggedIn, function(req, res) {
   });
 });
 
+// Multiple Tabs
+router.get('/multipleTabs', function(req, res) {
+  res.render('multipleTabs');
+});
+
 // Login routes
 router.get('/login', function(req, res) {
   if (req.session.user === undefined || req.session.user === '') {
@@ -41,7 +46,7 @@ router.get('/login', function(req, res) {
   }
 });
 
-router.post('/login', function(req, res, next) {
+router.post('/login', function(req, res) {
   passport.authenticate('local')(req, res, function() {
     // To save user in session..
     req.session.user = req.user;
@@ -55,6 +60,8 @@ router.get('/register', function(req, res) {
 });
 
 router.post('/register', function(req, res) {
+  // Client side sends an ajax request to check username. This is just
+  // for safe side ..
   User.findOne({username: req.body.username}, function(err, doc) {
     if (doc) {
       res.render('register', {
@@ -101,11 +108,5 @@ router.get('/logout', function(req, res) {
     }
   });
 });
-
-// Multiple Tabs
-router.get('/multipleTabs', function(req, res) {
-  res.render('multipleTabs');
-});
-
 
 module.exports = router;

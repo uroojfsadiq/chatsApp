@@ -31,10 +31,10 @@
 </div>
 <% include footer.ejs %>
 <script>
-    /* eslint-disable require-jsdoc */
-// Setup function to check username 0.4 seconds after user stops typing..
+/* eslint-disable require-jsdoc */
+// Setup function to check username 0.5 seconds after user stops typing..
 let typingTimer;
-const doneTypingInterval = 300;
+const doneTypingInterval = 500;
 // Starts countdown on keyup
 $('#username').keyup(function() {
   clearTimeout(typingTimer);
@@ -46,7 +46,7 @@ $('#username').keyup(function() {
   }
 });
 
-// Function for when user has finished typing..
+// Function for when user has finished typing, to check availability
 function doneTyping() {
   const usernameValue = $('#username').val();
   if (usernameValue !== '') {
@@ -76,6 +76,7 @@ $('#repeat-password').keyup(function() {
   }
 });
 
+// Function to check if passwords match.
 function checkPwd() {
   if ($('#password').val() !== $('#repeat-password').val()) {
     $('#errorPassword').html(`<p class="text-danger"> 
@@ -85,8 +86,6 @@ function checkPwd() {
     $('#submit').removeAttr('disabled');
   }
 }
-
-
 </script>
 </body>
 

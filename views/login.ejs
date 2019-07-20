@@ -6,7 +6,7 @@
             <p class="lead" style="text-align: center; color: rgb(217, 26, 35);"> <%=locals.message%></p>
         </div>
     </div>
-    <% if (!locals.hide) { %> 
+    <% if(!locals.hide) { %> 
     <div class="card" style="width: 60%; margin: 0 auto; margin-top: 20px; ">
         <div class="card-header">Login</div>
         <div class="card-block">
@@ -27,7 +27,8 @@
             </form>
         </div>
     </div>
-    <% } %>
+    <% }
+    %>
 </div>
 <% include footer.ejs %>
 </body>

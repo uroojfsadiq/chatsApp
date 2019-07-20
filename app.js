@@ -68,7 +68,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-// Socket IO
+// Socket IO Configuration..
 let onlineUsers = [];
 io.on('connection', (socket) => {
   io.sockets.emit('onlineUsers', onlineUsers);
