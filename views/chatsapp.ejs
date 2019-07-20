@@ -91,7 +91,8 @@
   });
 
   // Make Connection between Client and Server
-  const socket = io.connect('http://ec6ce5f0.ngrok.io');
+  // const socket = io.connect('http://ec6ce5f0.ngrok.io');
+  const socket = io.connect('http://localhost:3000');
 
   // Get elements from DOM
   const sender = '<%=locals.username%>';
@@ -200,13 +201,22 @@
       sender: sender,
     });
   });
+  function autoScroll() {
+  let chatwindows = $('.chat-window');
+  for(let i=0; i<chatwindows.length; i++) {
+    $(".chat-window").stop().animate({ scrollTop: $(".chat-window")[i].scrollHeight}, 1000);
+
+  }
+  
+}
 
   // // Listen to Events
   socket.on('chat', (data) => {
     typingB.html('');
     outputB.append(`<p> <strong> ${data.sender} </strong>
     ${data.message} </p>`);
-
+   $(".chat-window").stop().animate({ scrollTop: $(".chat-window")[0].scrollHeight}, 1000);
+  // autoScroll();
   });
 
   function check() {
@@ -216,6 +226,7 @@
   function checkMsg() {
     $(event.target).addClass('hideUser');
   }
+
 
   socket.on('PMsuccess', (data) => {
     let from;
@@ -229,6 +240,7 @@
     }
     $(from).find('.chat-output').append(`<p> 
               <strong> ${data.sender} </strong> ${data.message} </p>`);
+               autoScroll();
   });
 
   socket.on('PMupdate', (data) => {
@@ -240,7 +252,8 @@
     }
     $(from).find('.chat-output').append(`<p> 
                 <strong> ${data.sender} </strong> ${data.message} </p>`);
-  });
+               autoScroll();
+                 });
 
   socket.on('PMerror', (data) => {
     let from;
@@ -271,7 +284,7 @@
       }
     }
     if(!oldUser){
-      window.location
+      location.reload();
     }
     }
   });
